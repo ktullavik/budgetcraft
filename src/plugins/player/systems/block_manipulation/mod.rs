@@ -21,7 +21,7 @@ pub fn block_breaking_system(
         let origin = camera_transform.translation;
         let direction: Vec3 = camera_transform.forward();
     
-        if let Some((_, intersection)) = rapier_context.cast_ray_and_get_normal(origin, direction, 10.0, true, QueryFilter::exclude_dynamic()) {
+        if let Some((_, intersection)) = rapier_context.cast_ray_and_get_normal(origin, direction, 5.0, true, QueryFilter::exclude_dynamic()) {
             let hit = (intersection.point - intersection.normal * 0.5).floor();
             let chunk_pos = ((hit.x / CHUNK_WIDTH as f32).floor() as i32, (hit.z / CHUNK_WIDTH as f32).floor() as i32);
             let (x, y, z) = ((hit.x  - (chunk_pos.0 as f32 * CHUNK_WIDTH as f32)) as usize,
