@@ -29,7 +29,10 @@ pub fn block_breaking_system(
                                                 (hit.z - (chunk_pos.1 as f32 *  CHUNK_WIDTH as f32)) as usize);
 
             let index = x + y * CHUNK_WIDTH + z * CHUNK_WIDTH*CHUNK_HEIGHT;
-            if world_map.chunks[&chunk_pos][index] != BlockType::Air {
+            let hitblock = world_map.chunks[&chunk_pos][index];
+
+            if hitblock != BlockType::Air &&
+               hitblock != BlockType::BedRock {
                 world_map.chunks.get_mut(&chunk_pos).unwrap()[index] = BlockType::Air;
             }
 
