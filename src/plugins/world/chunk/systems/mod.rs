@@ -30,51 +30,51 @@ pub fn generate_chunk_data(
 
         let mut block_to_assign = BlockType::Air;
 
-                let height = height_by_coords(perlin.terrain_noise, x, z, position);
-                let tree_value = perlin.tree_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.01, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.01]) as f32;
+        let height = height_by_coords(perlin.terrain_noise, x, z, position);
+        let tree_value = perlin.tree_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.01, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.01]) as f32;
 
-                let temperature = perlin.temperature_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
-                let moisture = perlin.moisture_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
+        let temperature = perlin.temperature_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
+        let moisture = perlin.moisture_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
 
-                if y < height && y > height/2 {
-                    if temperature > 0.5 && moisture < 0.5 {
-                        block_to_assign = BlockType::Sand;
-                    }
-                    else {
-                        block_to_assign = BlockType::Dirt;
-                    }
-                }
-                else if y == 0 {
-                    block_to_assign = BlockType::BedRock;
-                }
-                else if y <= height / 2
-                {
-                    block_to_assign = BlockType::Stone;
-                }
-                else if y == height {
-                    if temperature > 0.5 && moisture < 0.5 {
-                        block_to_assign = BlockType::Sand;
-                    }
-                    else {
-                        block_to_assign = BlockType::Grass;
-                    }
-                }
+        if y < height && y > height/2 {
+            if temperature > 0.5 && moisture < 0.5 {
+                block_to_assign = BlockType::Sand;
+            }
+            else {
+                block_to_assign = BlockType::Dirt;
+            }
+        }
+        else if y == 0 {
+            block_to_assign = BlockType::BedRock;
+        }
+        else if y <= height / 2
+        {
+            block_to_assign = BlockType::Stone;
+        }
+        else if y == height {
+            if temperature > 0.5 && moisture < 0.5 {
+                block_to_assign = BlockType::Sand;
+            }
+            else {
+                block_to_assign = BlockType::Grass;
+            }
+        }
 
-                if y == height && height <= 50 {
-                    block_to_assign = BlockType::Sand;
-                }
+        if y == height && height <= 50 {
+            block_to_assign = BlockType::Sand;
+        }
 
-                if y < 50 && y > height {
-                    block_to_assign = BlockType::Water;
-                }
+        if y < 50 && y > height {
+            block_to_assign = BlockType::Water;
+        }
 
-                let tree_chance = random.gen_range(-1.0..tree_value.abs());
-                if tree_value > 0.5 && tree_chance > 0.8 && y == height && height >= 50 {
-                    tree_positions.push((x,y,z));
-                }
+        let tree_chance = random.gen_range(-1.0..tree_value.abs());
+        if tree_value > 0.5 && tree_chance > 0.8 && y == height && height >= 50 {
+            tree_positions.push((x,y,z));
+        }
 
-                let index = x + y * CHUNK_WIDTH + z * CHUNK_WIDTH*CHUNK_HEIGHT;
-                blocks[index] = block_to_assign;   
+        let index = x + y * CHUNK_WIDTH + z * CHUNK_WIDTH*CHUNK_HEIGHT;
+        blocks[index] = block_to_assign;   
     }
 
     for pos in tree_positions.iter() {
