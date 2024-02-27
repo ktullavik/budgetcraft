@@ -44,6 +44,9 @@ pub fn generate_chunk_data(
                         block_to_assign = BlockType::Dirt;
                     }
                 }
+                else if y == 0 {
+                    block_to_assign = BlockType::BedRock;
+                }
                 else if y <= height / 2
                 {
                     block_to_assign = BlockType::Stone;
