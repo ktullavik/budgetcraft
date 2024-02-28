@@ -11,6 +11,7 @@ pub enum BlockType {
     WoodLog,
     Leaves,
     BedRock,
+    OreStoneGold,
     Cactus,
 }
 
@@ -89,6 +90,14 @@ impl BlockType {
                 back: vec![Vec2::new(0.1, 0.1), Vec2::new(0.0, 0.1), Vec2::new(0.0, 0.2), Vec2::new(0.1, 0.2)],
                 top: vec![Vec2::new(0.1, 0.1), Vec2::new(0.0, 0.1), Vec2::new(0.0, 0.2), Vec2::new(0.1, 0.2)],
                 bottom: vec![Vec2::new(0.1, 0.1), Vec2::new(0.0, 0.1), Vec2::new(0.0, 0.2), Vec2::new(0.1, 0.2)],
+            },
+            BlockType::OreStoneGold => BlockFaces {
+                left: vec![Vec2::new(0.2, 0.1), Vec2::new(0.1, 0.1), Vec2::new(0.1, 0.2), Vec2::new(0.2, 0.2)],
+                right: vec![Vec2::new(0.2, 0.1), Vec2::new(0.1, 0.1), Vec2::new(0.1, 0.2), Vec2::new(0.2, 0.2)],
+                front: vec![Vec2::new(0.2, 0.1), Vec2::new(0.1, 0.1), Vec2::new(0.1, 0.2), Vec2::new(0.2, 0.2)],
+                back: vec![Vec2::new(0.2, 0.1), Vec2::new(0.1, 0.1), Vec2::new(0.1, 0.2), Vec2::new(0.2, 0.2)],
+                top: vec![Vec2::new(0.2, 0.1), Vec2::new(0.1, 0.1), Vec2::new(0.1, 0.2), Vec2::new(0.2, 0.2)],
+                bottom: vec![Vec2::new(0.2, 0.1), Vec2::new(0.1, 0.1), Vec2::new(0.1, 0.2), Vec2::new(0.2, 0.2)],
             }, 
             BlockType::Cactus => BlockFaces {
                 left: vec![Vec2::new(0.8, 0.1), Vec2::new(0.7, 0.1), Vec2::new(0.7, 0.2), Vec2::new(0.8, 0.2)],

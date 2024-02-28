@@ -48,7 +48,13 @@ pub fn generate_chunk_data(
             block_to_assign = BlockType::BedRock;
         }
         else if y <= height / 2 {
-            block_to_assign = BlockType::Stone;
+            let is_gold = random.gen_bool(0.01);
+            if is_gold {
+                block_to_assign = BlockType::OreStoneGold;
+            }
+            else {
+                block_to_assign = BlockType::Stone;
+            }
         }
         else if y == height {
             if temperature > 0.5 && moisture < 0.5 {
