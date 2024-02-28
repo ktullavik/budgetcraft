@@ -5,25 +5,25 @@ use super::{super::components::{Player, PlayerCamera, JumpDuration}, InputState}
 pub fn movement_system(
     mut player_query: Query<(&mut Velocity, &Player), Without<PlayerCamera>>,
     camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     let (mut velocity, player) = player_query.single_mut();
     let camera_transform = camera_query.single();
 
     let mut x_axis = 0.0;
-    if keyboard.pressed(KeyCode::D) {
+    if keyboard.pressed(KeyCode::KeyD) {
         x_axis = 1.0;
     }
-    if keyboard.pressed(KeyCode::A) {
+    if keyboard.pressed(KeyCode::KeyA) {
         x_axis = -1.0;
     }
 
     let mut z_axis = 0.0;
-    if keyboard.pressed(KeyCode::S) {
+    if keyboard.pressed(KeyCode::KeyS) {
         z_axis = 1.0;
     }
-    if keyboard.pressed(KeyCode::W) {
+    if keyboard.pressed(KeyCode::KeyW) {
         z_axis = -1.0;
     }   
 
@@ -36,7 +36,7 @@ pub fn movement_system(
 pub fn jump_system(
     time: Res<Time>,
     mut player_query: Query<(&mut JumpDuration, &mut Velocity, &Player)>,
-    kbd: Res<Input<KeyCode>>,
+    kbd: Res<ButtonInput<KeyCode>>,
 ) {
     // assume we have exactly one player that jumps with Spacebar
     let (mut jump, mut velocity, player) = player_query.single_mut();

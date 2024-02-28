@@ -14,8 +14,8 @@ opt-level = 3
 opt-level = 1
 
 [dependencies]
-bevy = { version = "0.12", features = ["dynamic_linking"] }
-bevy_rapier3d = "0.23"
-bevy_meshem = "0.3.0"
+bevy = { version = "0.13", features = ["dynamic_linking"] }
+bevy_rapier3d = "0.25"
+bevy_meshem = { git = "https://github.com/Adamkob12/bevy_meshem", rev = "37163302e9db919941478d0647803acf527d4dbf" }
 noise = "0.8.2"
 rand = "0.8.5"

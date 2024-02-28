@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use bevy::{prelude::*, render::{render_resource::PrimitiveTopology, mesh}};
+use bevy::render::render_asset::RenderAssetUsages;
 use bevy_rapier3d::prelude::{Collider, ComputedColliderShape, Friction, CoefficientCombineRule};
 use noise::{Perlin, NoiseFn};
 use rand::{rngs::StdRng, SeedableRng, Rng};
@@ -113,7 +114,10 @@ pub fn generate_water_chunk_mesh(
     world_map: &mut ResMut<WorldMap>,
     position: (i32, i32),
 ) -> Mesh {
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default()
+    );
 
     let mut verticies: Vec<[f32; 3]> = vec![];
     let mut indices: Vec<u32> = vec![];
@@ -129,7 +133,7 @@ pub fn generate_water_chunk_mesh(
 
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, verticies);
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-    mesh.set_indices(Some(mesh::Indices::U32(indices)));
+    mesh.insert_indices(mesh::Indices::U32(indices));
 
     mesh
 }
@@ -138,7 +142,10 @@ pub fn generate_chunk_mesh(
     world_map: &mut ResMut<WorldMap>,
     position: (i32, i32),
 ) -> Mesh {
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
+    let mut mesh = Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default()
+    );
 
     let mut verticies: Vec<[f32; 3]> = vec![];
     let mut indices: Vec<u32> = vec![];
@@ -155,7 +162,7 @@ pub fn generate_chunk_mesh(
 
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, verticies);
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
-    mesh.set_indices(Some(mesh::Indices::U32(indices)));
+    mesh.insert_indices(mesh::Indices::U32(indices));
 
     calculate_ao(&mut colors, position, &world_map.chunks);
     mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);

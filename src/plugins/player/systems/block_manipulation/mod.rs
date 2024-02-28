@@ -12,14 +12,14 @@ pub fn block_breaking_system(
     camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
     rapier_context: Res<RapierContext>,
     mut world_map: ResMut<WorldMap>,
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     mut chunk_queue: ResMut<ChunkQueue>,
 ) {
     let camera_transform = camera_query.single();
 
     if buttons.just_pressed(MouseButton::Left) {
         let origin = camera_transform.translation;
-        let direction: Vec3 = camera_transform.forward();
+        let direction: Vec3 = *camera_transform.forward();
     
         if let Some((_, intersection)) = rapier_context.cast_ray_and_get_normal(origin, direction, 5.0, true, QueryFilter::exclude_dynamic()) {
             let hit = (intersection.point - intersection.normal * 0.5).floor();
@@ -50,14 +50,14 @@ pub fn block_placing_system(
     camera_query: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
     rapier_context: Res<RapierContext>,
     mut world_map: ResMut<WorldMap>,
-    buttons: Res<Input<MouseButton>>,
+    buttons: Res<ButtonInput<MouseButton>>,
     mut chunk_queue: ResMut<ChunkQueue>,
 ) {
     let camera_transform = camera_query.single();
 
     if buttons.just_pressed(MouseButton::Right) {
         let origin = camera_transform.translation;
-        let direction: Vec3 = camera_transform.forward();
+        let direction: Vec3 = *camera_transform.forward();
     
         if let Some((_, intersection)) = rapier_context.cast_ray_and_get_normal(origin, direction, 10.0, true, QueryFilter::exclude_dynamic()) {
             let hit = (intersection.point + intersection.normal * 0.5).floor();
