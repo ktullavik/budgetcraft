@@ -67,6 +67,12 @@ pub fn block_placing_system(
             QueryFilter::exclude_dynamic()) {
 
             let hit = (intersection.point + intersection.normal * 0.5).floor();
+
+            // Don't place block within player bounding box.
+            if origin.x.floor() == hit.x && origin.z.floor() == hit.z && ((origin.y > hit.y && origin.y - hit.y < 1.5)) {
+                return;
+            }
+
             let chunk_pos = ((hit.x / CHUNK_WIDTH as f32).floor() as i32, (hit.z / CHUNK_WIDTH as f32).floor() as i32);
             let (x, y, z) = ((hit.x  - (chunk_pos.0 as f32 * CHUNK_WIDTH as f32)) as usize,
                                                   (hit.y) as usize,
