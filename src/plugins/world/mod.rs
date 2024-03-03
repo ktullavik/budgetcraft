@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 use noise::Perlin;
 
-use crate::{CHUNK_WIDTH, CHUNK_HEIGHT};
+use crate::{GameState, CHUNK_WIDTH, CHUNK_HEIGHT};
 
 use self::{systems::{generate_world_system, generate_chunks_from_player_movement, deque_chunks, unload_far_chunks}, chunk::components::BlockType};
 
@@ -20,9 +20,14 @@ impl Plugin for WorldPlugin {
             .insert_resource(WorldMap { chunks: HashMap::new(), chunk_entities: HashMap::new(), water_chunk_entities: HashMap::new(), reserved_chunk_data: HashMap::new() })
             .insert_resource(ChunkQueue { queue: vec![], is_next_ready: true })
             .add_systems(Startup, generate_world_system)
-            .add_systems(Update, (generate_chunks_from_player_movement, deque_chunks, unload_far_chunks));
+            .add_systems(Update, (
+                generate_chunks_from_player_movement,
+                deque_chunks,
+                unload_far_chunks
+            ).run_if(in_state(GameState::Running)));
     }
 }
+
 
 #[derive(Resource)]
 pub struct WorldMap {
