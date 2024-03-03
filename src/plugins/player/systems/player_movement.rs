@@ -100,7 +100,7 @@ pub fn player_setup_system(
         .insert(JumpDuration { time: Stopwatch::new()})
         .insert(RigidBody::Dynamic)
         .insert(LockedAxes::ROTATION_LOCKED_Z | LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Y)
-        .insert(Collider::capsule_y(0.05, 0.4))
+        .insert(Collider::capsule_y(0.5, 0.4))
         .insert(ColliderMassProperties::Density(1.0))
         .insert(Velocity {
             linvel: Vec3::new(0.0, 0.0, 0.0),
