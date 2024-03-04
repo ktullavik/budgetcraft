@@ -1185,6 +1185,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "budgetcraft"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_rapier3d",
+ "noise",
+ "rand 0.8.5",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2547,16 +2557,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c196769dd60fd4f363e11d948139556a344e79d451aeb2fa2fd040738ef7691"
 dependencies = [
  "jni-sys",
-]
-
-[[package]]
-name = "nilaya"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_rapier3d",
- "noise",
- "rand 0.8.5",
 ]
 
 [[package]]
