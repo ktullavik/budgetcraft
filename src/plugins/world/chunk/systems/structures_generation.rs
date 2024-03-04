@@ -1,34 +1,30 @@
 use bevy::prelude::*;
 
-use crate::{plugins::world::{WorldMap, chunk::components::BlockType}, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_BLOCK_COUNT};
+use crate::{plugins::world::{WorldMap, chunk::components::BlockType}, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_VOL};
 
-pub fn add_cactus (
-    height: usize,
-    x: usize, y: usize, z: usize,
-    mut blocks: [BlockType; CHUNK_WIDTH*CHUNK_HEIGHT*CHUNK_WIDTH],
-) -> [BlockType; CHUNK_WIDTH*CHUNK_HEIGHT*CHUNK_WIDTH] {
+
+pub fn add_cactus (height: usize, x: usize, y: usize, z: usize, blocks: &mut [BlockType; CHUNK_VOL]) {
     for i in 1..height {
         if y+i < CHUNK_HEIGHT-1 {
             blocks[x + (y+i)*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] = BlockType::Cactus;
         }
     }
-
-    blocks
 }
+
 
 pub fn add_tree(
     height: usize,
     chunk_pos: (i32, i32),
     x: usize, y: usize, z: usize,
     world_map: &mut ResMut<WorldMap>,
-    mut blocks: [BlockType; CHUNK_BLOCK_COUNT],
-) -> [BlockType; CHUNK_BLOCK_COUNT] {
+    blocks: &mut [BlockType; CHUNK_VOL]) {
+
     blocks[x + (y+height)*CHUNK_WIDTH + z*CHUNK_WIDTH*CHUNK_HEIGHT] = BlockType::Leaves;
 
-    let mut reserved_blocks_x = [BlockType::Air; CHUNK_BLOCK_COUNT];
-    let mut reserved_blocks_neg_x = [BlockType::Air; CHUNK_BLOCK_COUNT];
-    let mut reserved_blocks_z = [BlockType::Air; CHUNK_BLOCK_COUNT];
-    let mut reserved_blocks_neg_z = [BlockType::Air; CHUNK_BLOCK_COUNT];
+    let mut reserved_blocks_x = [BlockType::Air; CHUNK_VOL];
+    let mut reserved_blocks_neg_x = [BlockType::Air; CHUNK_VOL];
+    let mut reserved_blocks_z = [BlockType::Air; CHUNK_VOL];
+    let mut reserved_blocks_neg_z = [BlockType::Air; CHUNK_VOL];
 
     if world_map.reserved_chunk_data.contains_key(&(chunk_pos.0 + 1, chunk_pos.1)) {
         reserved_blocks_x = world_map.reserved_chunk_data[&(chunk_pos.0 + 1, chunk_pos.1)];
@@ -97,6 +93,4 @@ pub fn add_tree(
     if need_neg_x {world_map.reserved_chunk_data.insert((chunk_pos.0 - 1, chunk_pos.1), reserved_blocks_neg_x);}
     if need_z {world_map.reserved_chunk_data.insert((chunk_pos.0, chunk_pos.1 + 1), reserved_blocks_z);}
     if need_neg_z {world_map.reserved_chunk_data.insert((chunk_pos.0, chunk_pos.1 - 1), reserved_blocks_neg_z);}
-
-    blocks
 }

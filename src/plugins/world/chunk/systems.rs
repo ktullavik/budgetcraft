@@ -5,7 +5,7 @@ use bevy_rapier3d::prelude::{Collider, ComputedColliderShape, Friction, Coeffici
 use noise::{Perlin, NoiseFn};
 use rand::{rngs::StdRng, SeedableRng, Rng};
 
-use crate::{CHUNK_WIDTH, CHUNK_HEIGHT, plugins::world::{WorldMap, SeededPerlin}, CHUNK_BLOCK_COUNT};
+use crate::{CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_VOL, plugins::world::{WorldMap, SeededPerlin}};
 
 use self::structures_generation::{add_tree, add_cactus};
 
@@ -13,102 +13,240 @@ use super::components::BlockType;
 
 mod structures_generation;
 
-pub fn generate_chunk_data(
-    perlin: &Res<SeededPerlin>,
-    position: (i32, i32),
-    world_map: &mut ResMut<WorldMap>,
-) {
-    let mut blocks = [BlockType::Air; CHUNK_BLOCK_COUNT];
 
-    let mut tree_positions = vec![];
+const SEA_LEVEL: usize = 62;
 
-    let mut random = StdRng::seed_from_u64(perlin.seed as u64);
 
-    for i in 0..CHUNK_BLOCK_COUNT {
-        let z = i / (CHUNK_WIDTH*CHUNK_HEIGHT);
+pub fn generate_chunk_data(perlin: &Res<SeededPerlin>, chunk_pos: (i32, i32), world_map: &mut ResMut<WorldMap>) {
+
+    let seed = (perlin.seed).wrapping_add(chunk_pos.0 as u32).wrapping_add(chunk_pos.1 as u32);
+    let mut random = StdRng::seed_from_u64(seed as u64);
+
+    let mut blocks = [BlockType::Air; CHUNK_VOL];
+
+    generate_terrain_shape(perlin, chunk_pos, &mut blocks);
+    generate_ore(&mut random, &mut blocks);
+    generate_terrain_cover(perlin, chunk_pos, &mut blocks, world_map);
+
+    world_map.chunks.insert(chunk_pos, blocks);
+}
+
+
+pub fn generate_terrain_shape(perlin: &Res<SeededPerlin>, chunk_pos: (i32, i32), blocks: &mut [BlockType; CHUNK_VOL]) {
+
+    for i in 0 .. CHUNK_VOL {
+
+        let z = i / (CHUNK_WIDTH * CHUNK_HEIGHT);
         let y = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) / CHUNK_WIDTH;
         let x = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) % CHUNK_WIDTH;
 
-        let mut block_to_assign = BlockType::Air;
+        let (height, _) = height_by_coords(perlin.terrain_noise, x, z, chunk_pos);
 
-        let height = height_by_coords(perlin.terrain_noise, x, z, position);
-        let tree_value = perlin.tree_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.01, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.01]) as f32;
+        let index = x + y * CHUNK_WIDTH + z * CHUNK_WIDTH * CHUNK_HEIGHT;
 
-        let temperature = perlin.temperature_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
-        let moisture = perlin.moisture_noise.get([(x as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (z as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
+        if y == 0 {
+            blocks[index] = BlockType::BedRock;
+        }
+        else if y < height {
+            blocks[index] = BlockType::Stone;
+        }
+    }
+}
 
-        if y < height && y > height/2 {
-            if temperature > 0.5 && moisture < 0.5 {
-                block_to_assign = BlockType::Sand;
+
+pub fn generate_terrain_cover(perlin: &Res<SeededPerlin>, chunk_pos: (i32, i32), blocks: &mut [BlockType; CHUNK_VOL], world_map: &mut ResMut<WorldMap>) {
+
+    let mut tree_positions = vec![];
+    let mut random = StdRng::seed_from_u64(perlin.seed as u64);
+
+    for i in 0 .. CHUNK_VOL {
+
+        let z = i / (CHUNK_WIDTH * CHUNK_HEIGHT);
+        let y = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) / CHUNK_WIDTH;
+        let x = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) % CHUNK_WIDTH;
+
+        let mut block = BlockType::Air;
+
+        let (height, coverheight) = height_by_coords(perlin.terrain_noise, x, z, chunk_pos);
+
+        if y < height {
+            continue;
+        }
+
+
+        if y <= coverheight{
+
+            let temperature = temperature_at(perlin, chunk_pos, x, z);
+            let humidity = humidity_at(perlin, chunk_pos, x, z);
+            
+            if temperature > 0.7 && humidity < 0.4 {
+                block = BlockType::Sand;
+
+                if y >= SEA_LEVEL {
+                    let tree_value = perlin.tree_noise.get([
+                        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.1,
+                        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.1]
+                    ) as f32;
+    
+                    let tree_chance = random.gen_range(-1.0 .. tree_value.abs());
+                    if tree_value > 0.2 && tree_chance > 0.96 {
+                        tree_positions.push((x,y,z));
+                    }
+                }
+            }
+            else if y == coverheight {
+
+                if y >= SEA_LEVEL {
+
+                    block = BlockType::Grass;
+
+                    let tree_value = perlin.tree_noise.get([
+                        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.03,
+                        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.03]
+                    ) as f32;
+    
+                    let tree_chance = random.gen_range(-1.0 .. tree_value.abs());
+                    if tree_value > 0.2 && tree_chance > 0.6 {
+                        tree_positions.push((x,y,z));
+                    }
+                }
+                else {
+                    block = BlockType::Dirt;
+                }
             }
             else {
-                block_to_assign = BlockType::Dirt;
+                block = BlockType::Dirt;
             }
         }
-        else if y == 0 {
-            block_to_assign = BlockType::BedRock;
-        }
-        else if y <= height / 2 {
-            let is_gold = random.gen_bool(0.01);
-            if is_gold {
-                block_to_assign = BlockType::OreStoneGold;
-            }
-            else {
-                block_to_assign = BlockType::Stone;
-            }
-        }
-        else if y == height {
-            if temperature > 0.5 && moisture < 0.5 {
-                block_to_assign = BlockType::Sand;
-            }
-            else {
-                block_to_assign = BlockType::Grass;
-            }
+        else if y <= SEA_LEVEL {
+            block = BlockType::Water;
         }
 
-        if y == height && height <= 50 {
-            block_to_assign = BlockType::Sand;
-        }
 
-        if y < 50 && y > height {
-            block_to_assign = BlockType::Water;
-        }
-
-        let tree_chance = random.gen_range(-1.0..tree_value.abs());
-        if tree_value > 0.5 && tree_chance > 0.8 && y == height && height >= 50 {
-            tree_positions.push((x,y,z));
-        }
-
-        let index = x + y * CHUNK_WIDTH + z * CHUNK_WIDTH*CHUNK_HEIGHT;
-        blocks[index] = block_to_assign;   
+        let index = x + y * CHUNK_WIDTH + z * CHUNK_WIDTH * CHUNK_HEIGHT;
+        blocks[index] = block;
     }
 
     for pos in tree_positions.iter() {
-        let temperature = perlin.temperature_noise.get([(pos.0 as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (pos.2 as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
-        let moisture = perlin.moisture_noise.get([(pos.0 as f64 + position.0 as f64 * CHUNK_WIDTH as f64) * 0.001, (pos.2 as f64 + position.1 as f64 * CHUNK_WIDTH as f64) * 0.001]) as f32 * 10.;
-        
-        if temperature > 0.5 && moisture < 0.5 {
-            blocks = add_cactus(random.gen_range(2..5), pos.0, pos.1, pos.2, blocks);
+        let temperature = temperature_at(perlin, chunk_pos, pos.0, pos.2);
+        let humidity = humidity_at(perlin, chunk_pos, pos.0, pos.2);
+
+        if temperature > 0.65 && humidity < 0.4 {
+            add_cactus(random.gen_range(2..5), pos.0, pos.1, pos.2, blocks);
         }
         else {
-            blocks = add_tree(random.gen_range(3..6), position, pos.0, pos.1, pos.2, world_map, blocks);
+            add_tree(random.gen_range(3..6), chunk_pos, pos.0, pos.1, pos.2, world_map, blocks);
         }
     }
-
-    world_map.chunks.insert(position, blocks);
 }
 
-fn height_by_coords(
-    perlin: Perlin,
-    x: usize, z: usize,
-    chunk_position: (i32, i32),
-) -> usize{
-    let octave0 = perlin.get([(x as f64 + chunk_position.0 as f64 * CHUNK_WIDTH as f64) * 0.01, (z as f64 + chunk_position.1 as f64 * CHUNK_WIDTH as f64) * 0.01]) as f32 * 20.0;
-    let octave1 = perlin.get([(x as f64 + chunk_position.0 as f64 * CHUNK_WIDTH as f64) * 0.05, (z as f64 + chunk_position.1 as f64 * CHUNK_WIDTH as f64) * 0.05]) as f32 * 4.0;
-    let octave2 = perlin.get([(x as f64 + chunk_position.0 as f64 * CHUNK_WIDTH as f64) * 0.1, (z as f64 + chunk_position.1 as f64 * CHUNK_WIDTH as f64) * 0.1]) as f32;
-    let height = (octave0 + octave1 + octave2 + 64.0).floor();
-    height as usize
+
+fn generate_ore(random: &mut StdRng, blocks: &mut [BlockType; CHUNK_VOL]) {
+    
+    let fillings = random.gen_range(0 .. 50);
+
+    for _ in 0 .. fillings {
+
+        // Random walk may walk back on itself, so expect slightly pessimized ore count.
+        let neighbours = random.gen_range(1 .. 7);
+        let mut pos = random.gen_range(0 .. CHUNK_VOL) as i32;
+
+        if blocks[pos as usize] != BlockType::Stone {
+            continue;
+        }
+
+        blocks[pos as usize] = BlockType::OreStoneGold;
+
+        for _ in 0 .. neighbours {
+
+            let sub = random.gen_bool(0.5);
+            let xyz: f32 = random.gen();
+
+            if xyz < 0.33 {
+                // Walk along the x-axis.
+                if sub {
+                    pos = pos - 1;
+                }
+                else {
+                    pos = pos + 1;
+                }
+                if pos < CHUNK_VOL as i32 && pos > 0 {
+                    blocks[pos as usize] = BlockType::OreStoneGold;
+                }
+            }
+            else if xyz < 0.66 {
+                // Walk along the y-axis.
+                if sub {
+                    pos = pos + CHUNK_WIDTH as i32;
+                }
+                else {
+                    pos = pos - CHUNK_WIDTH as i32;
+                }
+                if pos < CHUNK_VOL as i32 && pos > 0 {
+                    blocks[pos as usize] = BlockType::OreStoneGold;
+                }
+            }
+            else {
+                // Walk along the z-axis.
+                if sub {
+                    pos = pos - (CHUNK_WIDTH * CHUNK_HEIGHT) as i32;
+                }
+                else {
+                    pos = pos + (CHUNK_WIDTH * CHUNK_HEIGHT) as i32;
+                }
+                if pos < CHUNK_VOL as i32 && pos > 0 {
+                    blocks[pos as usize] = BlockType::OreStoneGold;
+                }
+            }
+        }
+    }
 }
+
+
+fn temperature_at(perlin: &Res<SeededPerlin>, chunk_pos: (i32, i32), x: usize, z: usize) -> f32 {
+    perlin.temperature_noise.get([
+        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.001,
+        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.001
+    ]) as f32 * 10.0
+}
+
+
+fn humidity_at(perlin: &Res<SeededPerlin>, chunk_pos: (i32, i32), x: usize, z: usize) -> f32 {
+    perlin.moisture_noise.get([
+        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.001,
+        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.001
+    ]) as f32 * 10.0
+}
+
+
+fn height_by_coords(perlin: Perlin, x: usize, z: usize, chunk_pos: (i32, i32)) -> (usize, usize) {
+
+    let octave0 = perlin.get([
+        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.001,
+        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.001]
+    ) as f32 * 30.0;
+
+    let octave1 = perlin.get([
+        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.01,
+        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.01]
+    ) as f32 * 10.0;
+
+    let octave2 = perlin.get([
+        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.06,
+        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.06]
+    ) as f32 * 4.0;
+
+    let octave2_cover = perlin.get([
+        (x as f64 + chunk_pos.0 as f64 * CHUNK_WIDTH as f64) * 0.05,
+        (z as f64 + chunk_pos.1 as f64 * CHUNK_WIDTH as f64) * 0.05]
+    ) as f32 * 2.0;
+
+    (
+        (octave0 + octave1 + octave2 + 60.0).floor() as usize,
+        (octave0 + octave1 + octave2_cover + 64.0).floor() as usize,
+    )
+}
+
 
 pub fn generate_water_chunk_mesh(
     world_map: &mut ResMut<WorldMap>,
@@ -123,7 +261,7 @@ pub fn generate_water_chunk_mesh(
     let mut indices: Vec<u32> = vec![];
     let mut uvs: Vec<Vec2> = vec![];
 
-    for i in 0..CHUNK_BLOCK_COUNT {
+    for i in 0..CHUNK_VOL {
         let z = i / (CHUNK_WIDTH*CHUNK_HEIGHT);
         let y = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) / CHUNK_WIDTH;
         let x = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) % CHUNK_WIDTH;
@@ -152,7 +290,7 @@ pub fn generate_chunk_mesh(
     let mut uvs: Vec<Vec2> = vec![];
     let mut colors: Vec<[f32; 4]> = vec![];
 
-    for i in 0..CHUNK_BLOCK_COUNT {
+    for i in 0..CHUNK_VOL {
         let z = i / (CHUNK_WIDTH*CHUNK_HEIGHT);
         let y = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) / CHUNK_WIDTH;
         let x = (i - (z * CHUNK_WIDTH*CHUNK_HEIGHT)) % CHUNK_WIDTH;
@@ -173,9 +311,9 @@ pub fn generate_chunk_mesh(
 fn calculate_ao(
     colors: &mut Vec<[f32; 4]>,
     chunk_position: (i32, i32),
-    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_BLOCK_COUNT]>,
+    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_VOL]>,
 ) {
-    for index in 0..CHUNK_BLOCK_COUNT {
+    for index in 0..CHUNK_VOL {
         if !chunks[&chunk_position][index].is_transparent() {
             let z = (index / (CHUNK_WIDTH*CHUNK_HEIGHT)) as i32;
             let y = ((index - (z as usize * CHUNK_WIDTH*CHUNK_HEIGHT)) / CHUNK_WIDTH) as i32;
@@ -383,7 +521,7 @@ pub fn build_chunk(
 
     if world_map.reserved_chunk_data.contains_key(&position) {
         let mut blocks = world_map.chunks[&position];
-        for index in 0..CHUNK_BLOCK_COUNT {
+        for index in 0..CHUNK_VOL {
             if world_map.reserved_chunk_data[&position][index] != BlockType::Air {
                 blocks[index] = world_map.reserved_chunk_data[&position][index];
             }
@@ -424,7 +562,7 @@ fn generate_water_block(
     verticies: &mut Vec<[f32; 3]>,
     indices: &mut Vec<u32>,
     uvs: &mut Vec<Vec2>,
-    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_BLOCK_COUNT]>,
+    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_VOL]>,
     block_position: &(i32,i32,i32),
     chunk_position: &(i32, i32),
 ) {
@@ -454,7 +592,7 @@ fn generate_block(
     verticies: &mut Vec<[f32; 3]>,
     indices: &mut Vec<u32>,
     uvs: &mut Vec<Vec2>,
-    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_BLOCK_COUNT]>,
+    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_VOL]>,
     block_position: &(i32,i32,i32),
     chunk_position: &(i32, i32),
 ) {
@@ -559,7 +697,7 @@ fn add_indices(
 }
 
 fn block_at_position(
-    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_BLOCK_COUNT]>,
+    chunks: &HashMap<(i32,i32), [BlockType; CHUNK_VOL]>,
     block_position: (i32, i32, i32),
     chunk_position: (i32, i32),
 ) -> BlockType {

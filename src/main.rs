@@ -6,9 +6,8 @@ mod plugins;
 
 pub const CHUNK_WIDTH: usize = 8;
 pub const CHUNK_HEIGHT: usize = 256;
-pub const RENDER_DISTANCE: i32 = 16;
-
-pub const CHUNK_BLOCK_COUNT: usize = CHUNK_WIDTH*CHUNK_HEIGHT*CHUNK_WIDTH;
+pub const CHUNK_VOL: usize = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_HEIGHT;
+pub const RENDER_DISTANCE: i32 = 24;
 
 
 #[derive(Default, Resource, Debug, Eq, PartialEq, States, Hash, Clone)]
