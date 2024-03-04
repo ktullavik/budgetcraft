@@ -711,15 +711,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_meshem"
-version = "0.3.0"
-source = "git+https://github.com/Adamkob12/bevy_meshem?rev=37163302e9db919941478d0647803acf527d4dbf#37163302e9db919941478d0647803acf527d4dbf"
-dependencies = [
- "bevy",
- "rand 0.8.5",
-]
-
-[[package]]
 name = "bevy_mikktspace"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2563,7 +2554,6 @@ name = "nilaya"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_meshem",
  "bevy_rapier3d",
  "noise",
  "rand 0.8.5",
