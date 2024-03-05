@@ -34,21 +34,10 @@ fn main() {
         .init_state::<GameState>()
 
         .add_plugins(CameraPlugin)
-        .add_plugins(GamePlugin)
+        .add_plugins(PlayerPlugin)
+        .add_plugins(WorldPlugin)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(menu_plugin)
         .add_systems(OnEnter(GameState::Stopped), main_menu_setup)
         .run();
-}
-
-
-pub struct GamePlugin;
-
-impl Plugin for GamePlugin {
-
-    fn build(&self, app: &mut App) {
-        app
-        .add_plugins(PlayerPlugin)
-        .add_plugins(WorldPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
-    }
 }
