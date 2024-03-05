@@ -30,6 +30,7 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
 
         // Init state before our own plugins.
         .init_state::<GameState>()
@@ -37,7 +38,6 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(WorldPlugin)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(MenuPlugin)
         .run();
 }
