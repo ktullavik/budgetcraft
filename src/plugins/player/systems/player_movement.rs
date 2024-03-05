@@ -124,12 +124,18 @@ pub fn player_setup_system(
     });
 }
 
-pub fn lock_cursor(
-        mut windows_query: Query<&mut Window>,
-) {
+
+pub fn lock_cursor(mut windows_query: Query<&mut Window>) {
     if let Ok(mut window) = windows_query.get_single_mut() {
         let cur_pos = Vec2::new(window.width() / 2., window.height() / 2.);
 		window.set_cursor_position(Some(cur_pos));
         window.cursor.visible = false;
+    }
+}
+
+
+pub fn unlock_cursor(mut windows_query: Query<&mut Window>) {
+    if let Ok(mut window) = windows_query.get_single_mut() {
+        window.cursor.visible = true;
     }
 }

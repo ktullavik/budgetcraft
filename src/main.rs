@@ -39,5 +39,14 @@ fn main() {
         .add_plugins(PlayerPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(MenuPlugin)
+        .add_systems(Update, globalkeys)
         .run();
 }
+
+
+fn globalkeys(keyboard: Res<ButtonInput<KeyCode>>, mut gamestate: ResMut<NextState<GameState>>) {
+    if keyboard.pressed(KeyCode::Escape) {
+        gamestate.set(GameState::Stopped);
+    }
+}
+
