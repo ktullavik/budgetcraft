@@ -2,6 +2,7 @@ use bevy::{prelude::*, window::{PresentMode, WindowResolution}};
 use bevy_rapier3d::prelude::{RapierPhysicsPlugin, NoUserData};
 use plugins::{camera::CameraPlugin, menu::MenuPlugin, player::PlayerPlugin, world::WorldPlugin};
 
+
 mod plugins;
 
 pub const CHUNK_WIDTH: usize = 8;
