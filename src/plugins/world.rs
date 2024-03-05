@@ -7,8 +7,6 @@ use crate::{GameState, CHUNK_WIDTH, CHUNK_HEIGHT};
 
 use self::{systems::{generate_world_system, generate_chunks_from_player_movement, deque_chunks, unload_far_chunks}, chunk::components::BlockType};
 
-mod components;
-
 pub(crate) mod chunk;
 pub(crate) mod systems;
 
