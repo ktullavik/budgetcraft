@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use self::systems::{setup_light_system, setup_camera_system};
 
-pub mod components;
 mod systems;
 pub struct CameraPlugin;
 
