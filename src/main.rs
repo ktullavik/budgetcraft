@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::{PresentMode, WindowResolution}};
 use bevy_rapier3d::prelude::{RapierPhysicsPlugin, NoUserData};
-use plugins::{camera::CameraPlugin, world::WorldPlugin, player::PlayerPlugin, menu::menu_plugin, menu::main_menu_setup};
+use plugins::{camera::CameraPlugin, menu::{main_menu_setup, MenuPlugin}, player::PlayerPlugin, world::WorldPlugin};
 
 mod plugins;
 
@@ -37,7 +37,7 @@ fn main() {
         .add_plugins(PlayerPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugins(menu_plugin)
+        .add_plugins(MenuPlugin)
         .add_systems(OnEnter(GameState::Stopped), main_menu_setup)
         .run();
 }

@@ -21,12 +21,23 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 struct OnMainMenuScreen;
 
 
+pub struct MenuPlugin;
 
-pub fn menu_plugin(app: &mut App) {
-    app
-        .add_systems(OnExit(GameState::Stopped), despawn_screen::<OnMainMenuScreen>)
-        .add_systems(Update, (menu_action, button_system).run_if(in_state(GameState::Stopped)));
+impl Plugin for MenuPlugin {
+    fn build(&self, app: &mut bevy::prelude::App) {
+        app
+            .add_systems(OnExit(GameState::Stopped), despawn_screen::<OnMainMenuScreen>)
+            .add_systems(Update, (menu_action, button_system).run_if(in_state(GameState::Stopped)));
+    }
 }
+
+
+
+// pub fn menu_plugin(app: &mut App) {
+//     app
+//         .add_systems(OnExit(GameState::Stopped), despawn_screen::<OnMainMenuScreen>)
+//         .add_systems(Update, (menu_action, button_system).run_if(in_state(GameState::Stopped)));
+// }
 
 
 pub fn main_menu_setup(mut commands: Commands) {
