@@ -1,23 +1,9 @@
-use std::time::SystemTime;
-
 use bevy::prelude::*;
-use noise::Perlin;
 
 use crate::{RENDER_DISTANCE, CHUNK_WIDTH, plugins::player::components::Player};
 
 use super::{chunk::systems::{generate_chunk_data, build_chunk}, WorldMap, SeededPerlin, ChunkQueue};
 
-pub fn generate_world_system(
-    mut commands: Commands,
-) {
-    let seed = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).expect("[E] SystemTime before UNIX EPOCH!").as_secs() as u32;
-    let terrain_perlin = Perlin::new(seed);
-    let tree_perlin = Perlin::new(seed*2);
-    let temperature_perlin = Perlin::new(seed+20);
-    let moisture_perlin = Perlin::new(seed+30);
-
-    commands.insert_resource(SeededPerlin { seed: seed, terrain_noise: terrain_perlin, tree_noise: tree_perlin, temperature_noise: temperature_perlin, moisture_noise: moisture_perlin});
-}
 
 pub fn generate_chunks_from_player_movement(
     player_query: Query<&Transform, With<Player>>,
