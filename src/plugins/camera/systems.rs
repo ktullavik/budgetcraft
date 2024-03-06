@@ -2,9 +2,9 @@ use bevy::prelude::*;
 
 use crate::plugins::player::components::PlayerCamera;
 
-pub fn setup_camera_system(
-    mut commands: Commands,
-) {
+
+pub fn setup_camera_system(mut commands: Commands) {
+
     commands.spawn(Camera3dBundle {
         transform: Transform {
             translation: Vec3::ZERO,
@@ -19,8 +19,7 @@ pub fn setup_camera_system(
     .insert(PlayerCamera::default());
 }
 
-pub fn setup_light_system(
-    mut commands: Commands,
-) {
+
+pub fn setup_light_system(mut commands: Commands) {
     commands.insert_resource(ClearColor(Color::hex("8fd3ff").unwrap()));
 }
