@@ -37,13 +37,13 @@ pub fn player_setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let player = commands.spawn(PbrBundle {
+    let player = commands.spawn((Name::new("Player"), PbrBundle {
         transform: Transform {
             translation: Vec3::new(0.0, 96.0, 0.0),
             ..Default::default()
         },
         ..default()
-    })
+    }))
     .id();
 
     commands.entity(player)
@@ -63,7 +63,7 @@ pub fn player_setup(
     commands.insert_resource(InputState::default());
 
 
-    commands.spawn(ImageBundle {
+    commands.spawn((Name::new("CursorImage"), ImageBundle {
         image: asset_server.load("cursor.png").into(),
         style: Style {
             width: Val::Px(16.),
@@ -73,7 +73,7 @@ pub fn player_setup(
             ..default()
         },
         ..default()
-    });
+    }));
 }
 
 
