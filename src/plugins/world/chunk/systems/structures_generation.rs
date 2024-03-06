@@ -1,6 +1,7 @@
 use bevy::prelude::*;
-
-use crate::{plugins::world::{WorldMap, chunk::components::BlockType}, CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_VOL};
+use crate::plugins::world::WorldMap;
+use crate::plugins::world::chunk::components::BlockType;
+use crate::{CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_VOL};
 
 
 pub fn add_cactus (height: usize, x: usize, y: usize, z: usize, blocks: &mut [BlockType; CHUNK_VOL]) {
