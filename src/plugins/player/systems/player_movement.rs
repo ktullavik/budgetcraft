@@ -1,6 +1,7 @@
-use bevy::{prelude::*, input::mouse::MouseMotion, time::Stopwatch};
+use bevy::{prelude::*, input::mouse::MouseMotion};
 use bevy_rapier3d::prelude::*;
 use super::{super::components::{Player, PlayerCamera, JumpDuration}, InputState};
+
 
 pub fn movement_system(
     mut player_query: Query<(&mut Velocity, &Player), Without<PlayerCamera>>,
@@ -33,6 +34,7 @@ pub fn movement_system(
     velocity.linvel = Vec3::new(movement_direction.x * player.speed * time.delta_seconds(), velocity.linvel.y, movement_direction.z * player.speed * time.delta_seconds());
 }
 
+
 pub fn jump_system(
     time: Res<Time>,
     mut player_query: Query<(&mut JumpDuration, &mut Velocity, &Player)>,
@@ -50,6 +52,7 @@ pub fn jump_system(
         velocity.linvel.y = player.jump_force;
     }
 }
+
 
 pub fn camera_rotation_system(
     windows_query: Query<&Window>,
@@ -80,62 +83,4 @@ pub fn camera_rotation_system(
 
     player_camera.focus = player_transform.translation;
     camera_transform.translation = player_camera.focus + Vec3::new(0.0, 1.0, 0.0);
-}
-
-pub fn player_setup_system(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    let player = commands.spawn(PbrBundle {
-        transform: Transform {
-            translation: Vec3::new(0.0, 96.0, 0.0),
-            ..Default::default()
-        },
-        ..default()
-    })
-    .id();
-
-    commands.entity(player)
-        .insert(Player { speed: 400.0, jump_force: 9.0 })
-        .insert(JumpDuration { time: Stopwatch::new()})
-        .insert(RigidBody::Dynamic)
-        .insert(LockedAxes::ROTATION_LOCKED_Z | LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Y)
-        .insert(Collider::capsule_y(0.5, 0.4))
-        .insert(ColliderMassProperties::Density(1.0))
-        .insert(Velocity {
-            linvel: Vec3::new(0.0, 0.0, 0.0),
-            angvel: Vec3::new(0.0, 0.0, 0.0),
-        })
-        .insert(GravityScale(6.0))
-        .insert(Sleeping::disabled())
-        .insert(Ccd::enabled());
-    commands.insert_resource(InputState::default());
-
-    commands.spawn(ImageBundle {
-        image: asset_server.load("cursor.png").into(),
-        style: Style {
-            width: Val::Px(16.),
-            height: Val::Px(16.),
-            justify_self: JustifySelf::Center,
-            align_self: AlignSelf::Center,
-            ..default()
-        },
-        ..default()
-    });
-}
-
-
-pub fn lock_cursor(mut windows_query: Query<&mut Window>) {
-    if let Ok(mut window) = windows_query.get_single_mut() {
-        let cur_pos = Vec2::new(window.width() / 2., window.height() / 2.);
-		window.set_cursor_position(Some(cur_pos));
-        window.cursor.visible = false;
-    }
-}
-
-
-pub fn unlock_cursor(mut windows_query: Query<&mut Window>) {
-    if let Ok(mut window) = windows_query.get_single_mut() {
-        window.cursor.visible = true;
-    }
 }
