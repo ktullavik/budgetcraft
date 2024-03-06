@@ -73,8 +73,3 @@ fn generate_world_system(mut commands: Commands) {
             moisture_noise: moisture_perlin
         });
 }
-
-// #[derive(Resource)]
-// pub struct ChunkQueueConfig {
-//     timer: Timer,
-// }
