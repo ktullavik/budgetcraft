@@ -36,6 +36,7 @@ pub struct WorldMap {
     pub reserved_chunk_data: HashMap<(i32, i32), [BlockType; CHUNK_WIDTH*CHUNK_HEIGHT*CHUNK_WIDTH]>,
 }
 
+
 #[derive(Resource)]
 pub struct SeededPerlin {
     pub seed: u32,
@@ -45,6 +46,7 @@ pub struct SeededPerlin {
     pub moisture_noise: Perlin,
 }
 
+
 #[derive(Resource)]
 pub struct ChunkQueue {
     pub queue: Vec<(i32, i32)>,
@@ -53,13 +55,23 @@ pub struct ChunkQueue {
 
 
 fn generate_world_system(mut commands: Commands) {
-    let seed = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).expect("[E] SystemTime before UNIX EPOCH!").as_secs() as u32;
+
+    let seed = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)
+        .expect("[E] SystemTime before UNIX EPOCH!").as_secs() as u32;
+
     let terrain_perlin = Perlin::new(seed);
     let tree_perlin = Perlin::new(seed*2);
     let temperature_perlin = Perlin::new(seed+20);
     let moisture_perlin = Perlin::new(seed+30);
 
-    commands.insert_resource(SeededPerlin { seed: seed, terrain_noise: terrain_perlin, tree_noise: tree_perlin, temperature_noise: temperature_perlin, moisture_noise: moisture_perlin});
+    commands.insert_resource(
+        SeededPerlin {
+            seed,
+            terrain_noise: terrain_perlin,
+            tree_noise: tree_perlin,
+            temperature_noise: temperature_perlin,
+            moisture_noise: moisture_perlin
+        });
 }
 
 // #[derive(Resource)]
