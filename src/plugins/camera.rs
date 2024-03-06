@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use self::systems::{setup_light_system, setup_camera_system};
+use crate::plugins::player::components::PlayerCamera;
 
-mod systems;
+
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -12,3 +12,26 @@ impl Plugin for CameraPlugin {
             .add_systems(Startup, (setup_light_system, setup_camera_system));
     }
 }
+
+
+pub fn setup_camera_system(mut commands: Commands) {
+
+    commands.spawn((Name::new("Camera3D"), Camera3dBundle {
+        transform: Transform {
+            translation: Vec3::ZERO,
+            ..default()
+        },
+        projection: Projection::Perspective(PerspectiveProjection {
+            fov: std::f32::consts::PI / 2.0,
+            ..default()
+        }),
+        ..default()
+    }))
+    .insert(PlayerCamera::default());
+}
+
+
+pub fn setup_light_system(mut commands: Commands) {
+    commands.insert_resource(ClearColor(Color::hex("8fd3ff").unwrap()));
+}
+
