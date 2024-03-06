@@ -16,7 +16,12 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(WorldMap { chunks: HashMap::new(), chunk_entities: HashMap::new(), water_chunk_entities: HashMap::new(), reserved_chunk_data: HashMap::new() })
+            .insert_resource(WorldMap {
+                chunks: HashMap::new(),
+                chunk_entities: HashMap::new(),
+                water_chunk_entities: HashMap::new(),
+                reserved_chunk_data: HashMap::new()
+            })
             .insert_resource(ChunkQueue { queue: vec![], is_next_ready: true })
             .add_systems(Startup, setup_random)
             .add_systems(Update, (
