@@ -5,7 +5,7 @@ use crate::plugins::player::components::PlayerCamera;
 
 pub fn setup_camera_system(mut commands: Commands) {
 
-    commands.spawn(Camera3dBundle {
+    commands.spawn((Name::new("Camera3D"), Camera3dBundle {
         transform: Transform {
             translation: Vec3::ZERO,
             ..default()
@@ -15,7 +15,7 @@ pub fn setup_camera_system(mut commands: Commands) {
             ..default()
         }),
         ..default()
-    })
+    }))
     .insert(PlayerCamera::default());
 }
 
