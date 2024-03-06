@@ -18,7 +18,7 @@ impl Plugin for WorldPlugin {
         app
             .insert_resource(WorldMap { chunks: HashMap::new(), chunk_entities: HashMap::new(), water_chunk_entities: HashMap::new(), reserved_chunk_data: HashMap::new() })
             .insert_resource(ChunkQueue { queue: vec![], is_next_ready: true })
-            .add_systems(Startup, generate_world_system)
+            .add_systems(Startup, setup_random)
             .add_systems(Update, (
                 generate_chunks_from_player_movement,
                 deque_chunks,
@@ -54,7 +54,7 @@ pub struct ChunkQueue {
 }
 
 
-fn generate_world_system(mut commands: Commands) {
+fn setup_random(mut commands: Commands) {
 
     let seed = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)
         .expect("[E] SystemTime before UNIX EPOCH!").as_secs() as u32;
