@@ -33,6 +33,7 @@ pub fn generate_chunks_from_player_movement(
     }
 }
 
+
 pub fn unload_far_chunks(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
@@ -60,12 +61,11 @@ pub fn unload_far_chunks(
     }
 }
 
-pub fn enque_chunk(
-    chunk_queue: &mut ResMut<ChunkQueue>,
-    position: (i32,i32),
-) {
+
+pub fn enque_chunk(chunk_queue: &mut ResMut<ChunkQueue>, position: (i32,i32)) {
     chunk_queue.queue.push(position);
 }
+
 
 pub fn deque_chunks(
     mut commands: Commands,
@@ -90,6 +90,7 @@ pub fn deque_chunks(
         }
     }
 }
+
 
 fn get_closest_chunk_from_queue(
     queue: &Vec<(i32, i32)>,
