@@ -53,12 +53,12 @@ pub fn add_tree(
         for j in 1..height-i-1 {
 
             if x+j >= CHUNK_WIDTH {
-                let index = (x as i32 +j as i32-CHUNK_WIDTH as i32) as usize + (y+i+2) * CHUNK_WIDTH + z * CHUNK_HEIGHT * CHUNK_WIDTH;
+                let index = (x as i32 + j as i32-CHUNK_WIDTH as i32) as usize + (y+i+2) * CHUNK_WIDTH + z * CHUNK_HEIGHT * CHUNK_WIDTH;
                 reserved_blocks_x[index] = BlockType::Leaves;
                 need_x = true;
             }
             else {
-                blocks[x+j + (y+i+2)*CHUNK_WIDTH + z*CHUNK_HEIGHT*CHUNK_WIDTH] = BlockType::Leaves;
+                blocks[x+j + (y+i+2) * CHUNK_WIDTH + z * CHUNK_HEIGHT * CHUNK_WIDTH] = BlockType::Leaves;
             }
 
             if (x as i32 - j as i32) < 0 {
@@ -67,7 +67,7 @@ pub fn add_tree(
                 need_neg_x = true;
             }
             else {
-                blocks[x-j + (y+i+2)*CHUNK_WIDTH + z*CHUNK_HEIGHT*CHUNK_WIDTH] = BlockType::Leaves;
+                blocks[x-j + (y+i+2) * CHUNK_WIDTH + z * CHUNK_HEIGHT * CHUNK_WIDTH] = BlockType::Leaves;
             }
 
             if z+j >= CHUNK_WIDTH {
@@ -76,16 +76,16 @@ pub fn add_tree(
                 need_z = true;
             }
             else {
-                blocks[x + (y+i+2)*CHUNK_WIDTH + (z+j)*CHUNK_HEIGHT*CHUNK_WIDTH] = BlockType::Leaves;
+                blocks[x + (y+i+2) * CHUNK_WIDTH + (z+j) * CHUNK_HEIGHT * CHUNK_WIDTH] = BlockType::Leaves;
             }
 
             if (z as i32 - j as i32) < 0 {
-                let index = x + (y+i+2) * CHUNK_WIDTH + (z as i32 - j as i32+CHUNK_WIDTH as i32) as usize  * CHUNK_HEIGHT * CHUNK_WIDTH;
+                let index = x + (y+i+2) * CHUNK_WIDTH + (z as i32 - j as i32+CHUNK_WIDTH as i32) as usize * CHUNK_HEIGHT * CHUNK_WIDTH;
                 reserved_blocks_neg_z[index] = BlockType::Leaves;
                 need_neg_z = true;
             }
             else {
-                blocks[x + (y+i+2)*CHUNK_WIDTH + (z-j)*CHUNK_HEIGHT*CHUNK_WIDTH] = BlockType::Leaves;
+                blocks[x + (y+i+2) * CHUNK_WIDTH + (z-j) * CHUNK_HEIGHT * CHUNK_WIDTH] = BlockType::Leaves;
             }
         }
     }
