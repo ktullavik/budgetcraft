@@ -23,7 +23,7 @@ impl Plugin for WorldPlugin {
                 reserved_chunk_data: HashMap::new()
             })
             .insert_resource(ChunkQueue { queue: vec![], is_next_ready: true })
-            .add_systems(Startup, setup_random)
+            .add_systems(OnEnter(GameState::Running), setup_random)
             .add_systems(Update, (
                 generate_chunks_from_player_movement,
                 deque_chunks,
