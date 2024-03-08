@@ -50,3 +50,16 @@ fn globalkeys(keyboard: Res<ButtonInput<KeyCode>>, mut gamestate: ResMut<NextSta
     }
 }
 
+
+// Cleaup tag for game stuff.
+#[derive(Component)]
+struct GameGarbage;
+
+
+// Generic component cleanup.
+fn cleanup<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
+    for e in q.iter() {
+        commands.entity(e).despawn_recursive();
+    }
+}
+

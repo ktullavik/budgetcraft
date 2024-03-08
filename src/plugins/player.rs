@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::*;
 
 use components::{Player, JumpDuration};
 
-use crate::GameState;
+use crate::{GameState, GameGarbage, cleanup};
 
 use self::systems::player_movement::{movement_system, jump_system, camera_rotation_system};
 use self::systems::block_manipulation::{block_breaking_system, block_placing_system};
@@ -20,7 +20,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app
             .add_systems(OnEnter(GameState::Running), player_setup)
-            .add_systems(OnExit(GameState::Running), unlock_cursor)
+            .add_systems(OnExit(GameState::Running), (cleanup::<GameGarbage>, unlock_cursor))
             .add_systems(Update, (
                 lock_cursor,
                 camera_rotation_system,
@@ -43,7 +43,7 @@ pub fn player_setup(
             ..Default::default()
         },
         ..default()
-    }))
+    }, GameGarbage))
     .id();
 
     commands.entity(player)
@@ -73,7 +73,7 @@ pub fn player_setup(
             ..default()
         },
         ..default()
-    }));
+    }, GameGarbage));
 }
 
 
