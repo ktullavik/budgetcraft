@@ -33,10 +33,8 @@ impl Plugin for PlayerPlugin {
 }
 
 
-pub fn player_setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+pub fn player_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+
     let player = commands.spawn((Name::new("Player"), PbrBundle {
         transform: Transform {
             translation: Vec3::new(0.0, 96.0, 0.0),
